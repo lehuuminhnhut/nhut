@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sơ đồ đội hình bóng chuyền</title>
+<style>
+  :root { color-scheme: light; --ink:#17211b; --muted:#65736b; --green:#16764d; --court:#26865b; --line:rgba(255,255,255,.94); --blue:#e5f0ff; --gold:#fff0d5; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; padding:28px 16px 40px; font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif; color:var(--ink); background:linear-gradient(145deg,#edf6f0,#f6f8fb 55%,#eaf1f8); }
+  .app { width:min(100%,920px); margin:0 auto; }
+  header { text-align:center; margin-bottom:22px; }
+  .eyebrow { display:inline-flex; align-items:center; gap:7px; padding:6px 11px; border-radius:999px; background:#dcefe4; color:#176342; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+  h1 { margin:11px 0 6px; font-size:clamp(25px,5vw,38px); line-height:1.1; letter-spacing:-.035em; }
+  .sub { margin:0; color:var(--muted); font-size:14px; }
+  .panel { background:#fff; border:1px solid #e0e8e2; border-radius:20px; box-shadow:0 12px 34px rgba(29,65,45,.08); padding:18px; }
+  .toolbar { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end; margin-bottom:16px; }
+  label.field-label { display:block; font-weight:750; font-size:13px; margin:0 0 7px; }
+  input { width:100%; min-width:0; border:1px solid #cbd8cf; border-radius:10px; padding:11px 10px; font:600 14px inherit; color:#111; background:#fff; outline:none; }
+  input:focus { border-color:#168452; box-shadow:0 0 0 3px rgba(22,132,82,.13); }
+  input::placeholder { color:#8c9690; font-weight:450; }
+  .court-wrap { display:flex; justify-content:center; }
+  .court { width:min(100%,470px); aspect-ratio:9 / 16.8; padding:9px; display:grid; grid-template-rows:1fr 13px 1fr; gap:0; border:3px solid #fff; border-radius:15px; background:var(--court); box-shadow:inset 0 0 0 1px rgba(0,0,0,.13),0 7px 20px rgba(20,72,45,.16); overflow:hidden; }
+  .half { min-height:0; display:grid; grid-template-rows:1fr 1fr; padding:7px 3px; position:relative; }
+  .half.opponent { padding-top:4px; padding-bottom:9px; }
+  .half.ours { padding-top:9px; padding-bottom:4px; }
+  .row3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; min-height:0; }
+  .opponent .row3:first-child { align-items:start; }
+  .opponent .row3:last-child { align-items:end; }
+  .ours .row3:first-child { align-items:start; }
+  .ours .row3:last-child { align-items:end; }
+  .op-card { width:100%; min-height:58px; display:flex; justify-content:center; align-items:center; flex-direction:column; border:1px solid rgba(255,255,255,.7); border-radius:10px; background:rgba(235,248,238,.88); color:#42624e; font-weight:800; }
+  .op-card small { font-size:10px; font-weight:600; opacity:.75; }
+  .team-label { position:absolute; z-index:1; left:50%; transform:translateX(-50%); color:rgba(255,255,255,.88); font-size:10px; font-weight:800; letter-spacing:.12em; white-space:nowrap; }
+  .opponent .team-label { top:42%; }
+  .ours .team-label { bottom:42%; }
+  .net { display:flex; align-items:center; justify-content:center; position:relative; z-index:2; margin:0 -9px; background:#f1f3f2; border-top:2px solid #fff; border-bottom:2px solid #fff; color:#25322a; font-size:10px; font-weight:900; letter-spacing:.17em; box-shadow:0 2px 4px rgba(0,0,0,.16); }
+  .player { min-height:75px; padding:8px 7px 7px; display:flex; flex-direction:column; justify-content:center; gap:5px; border-radius:11px; border:1px solid rgba(255,255,255,.9); box-shadow:0 2px 5px rgba(0,0,0,.07); transition:transform .32s ease,background .2s ease; }
+  .player.front { background:var(--gold); }
+  .player.back { background:var(--blue); }
+  .posline { display:flex; align-items:center; justify-content:center; gap:5px; color:#111; }
+  .posnum { font-size:21px; line-height:1; font-weight:900; }
+  .postext { font-size:9px; color:#4d554f; font-weight:700; text-transform:uppercase; letter-spacing:.035em; }
+  .player input { text-align:center; padding:8px 5px; border-color:#d5d8d4; border-radius:8px; color:#080b09; font-size:13px; font-weight:750; background:rgba(255,255,255,.94); }
+  .court-foot { display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px; font-weight:800; letter-spacing:.12em; padding-top:4px; }
+  .controls { display:flex; flex-wrap:wrap; justify-content:center; gap:9px; margin:17px 0 8px; }
+  button { border:0; border-radius:12px; padding:12px 17px; min-height:44px; font:750 14px inherit; cursor:pointer; transition:transform .15s ease,filter .15s ease,box-shadow .15s ease; }
+  button:hover { filter:brightness(1.04); transform:translateY(-1px); }
+  button:active { transform:translateY(1px); }
+  button:focus-visible { outline:3px solid #8dbda2; outline-offset:2px; }
+  .rotate { color:white; background:#14784c; box-shadow:0 5px 12px rgba(20,120,76,.22); min-width:185px; font-size:15px; }
+  .secondary { color:#25352b; background:#eaf0ec; }
+  .danger { color:#8b3030; background:#fff0ef; }
+  .status { text-align:center; min-height:22px; margin:7px 0 0; color:#4b6153; font-size:13px; font-weight:650; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:12px; color:#58645c; font-size:12px; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:middle; }
+  .below { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:15px; }
+  .mini { border:1px solid #e5ebe6; border-radius:13px; padding:12px; background:#fbfdfb; }
+  .mini strong { display:block; margin-bottom:6px; font-size:13px; }
+  .mini p { margin:0; color:#607066; font-size:12px; line-height:1.5; }
+  .libero { margin-top:15px; }
+  .hint { margin:14px 0 0; color:#738078; font-size:11px; text-align:center; line-height:1.5; }
+  @media (max-width:540px) {
+    body { padding:19px 10px 28px; }
+    .panel { padding:12px; border-radius:16px; }
+    .toolbar { grid-template-columns:1fr; }
+    .court { padding:7px; aspect-ratio:9 / 17.5; }
+    .row3 { gap:5px; }
+    .player { min-height:68px; padding:6px 4px; }
+    .player input { font-size:12px; padding:7px 3px; }
+    .posnum { font-size:19px; }
+    .postext { font-size:8px; }
+    .op-card { min-height:48px; }
+    .below { grid-template-columns:1fr; }
+    .rotate { width:100%; }
+    .secondary,.danger { flex:1; }
+  }
+  @media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <span class="eyebrow">🏐 Volleyball lineup</span>
+    <h1>Sơ đồ đội hình bóng chuyền</h1>
+    <p class="sub">Nhập tên cầu thủ, rồi xoay đội hình chỉ bằng một nút bấm.</p>
+  </header>
+  <section class="panel">
+    <div class="toolbar">
+      <div>
+        <label class="field-label" for="teamName">Tên đội</label>
+        <input id="teamName" maxlength="32" placeholder="Ví dụ: 12A2" />
+      </div>
+      <div style="color:#64736a;font-size:12px;font-weight:700;padding:0 2px 11px">Lượt xoay: <span id="rotationCount">0</span></div>
+    </div>
+    <div class="court-wrap">
+      <div class="court" aria-label="Sơ đồ sân bóng chuyền">
+        <div class="half opponent">
+          <div class="row3">
+            <div class="op-card">1 <small>Đối phương</small></div>
+            <div class="op-card">6 <small>Đối phương</small></div>
+            <div class="op-card">5 <small>Đối phương</small></div>
+          </div>
+          <div class="row3">
+            <div class="op-card">2 <small>Đối phương</small></div>
+            <div class="op-card">3 <small>Đối phương</small></div>
+            <div class="op-card">4 <small>Đối phương</small></div>
+          </div>
+          <div class="team-label">SÂN ĐỐI PHƯƠNG</div>
+        </div>
+        <div class="net">LƯỚI BÓNG CHUYỀN</div>
+        <div class="half ours">
+          <div class="row3">
+            <div class="player front" data-pos="4"><div class="posline"><span class="posnum">4</span><span class="postext">Trước trái</span></div><input id="p4" maxlength="24" aria-label="Tên cầu thủ vị trí 4" placeholder="Nhập tên" /></div>
+            <div class="player front" data-pos="3"><div class="posline"><span class="posnum">3</span><span class="postext">Trước giữa</span></div><input id="p3" maxlength="24" aria-label="Tên cầu thủ vị trí 3" placeholder="Nhập tên" /></div>
+            <div class="player front" data-pos="2"><div class="posline"><span class="posnum">2</span><span class="postext">Trước phải</span></div><input id="p2" maxlength="24" aria-label="Tên cầu thủ vị trí 2" placeholder="Nhập tên" /></div>
+          </div>
+          <div class="row3">
+            <div class="player back" data-pos="5"><div class="posline"><span class="posnum">5</span><span class="postext">Sau trái</span></div><input id="p5" maxlength="24" aria-label="Tên cầu thủ vị trí 5" placeholder="Nhập tên" /></div>
+            <div class="player back" data-pos="6"><div class="posline"><span class="posnum">6</span><span class="postext">Sau giữa</span></div><input id="p6" maxlength="24" aria-label="Tên cầu thủ vị trí 6" placeholder="Nhập tên" /></div>
+            <div class="player back" data-pos="1"><div class="posline"><span class="posnum">1</span><span class="postext">Sau phải</span></div><input id="p1" maxlength="24" aria-label="Tên cầu thủ vị trí 1" placeholder="Nhập tên" /></div>
+          </div>
+          <div class="team-label" id="courtTeamLabel">ĐỘI CỦA BẠN</div>
+        </div>
+      </div>
+    </div>
+    <div class="court-foot" style="color:#60736a">VẠCH CUỐI SÂN CỦA ĐỘI BẠN</div>
+    <div class="controls">
+      <button class="rotate" id="rotateBtn" type="button">↻ Xoay cầu</button>
+      <button class="secondary" id="undoBtn" type="button" disabled>↶ Hoàn tác</button>
+      <button class="danger" id="clearBtn" type="button">Xóa tên</button>
+    </div>
+    <p class="status" id="status" aria-live="polite">Sẵn sàng! Nhập tên 6 cầu thủ để bắt đầu.</p>
+    <div class="legend">
+      <span><i class="dot" style="background:#fff0d5"></i>Hàng trước</span>
+      <span><i class="dot" style="background:#e5f0ff"></i>Hàng sau</span>
+    </div>
+    <div class="libero">
+      <label class="field-label" for="libero">Libero (không thuộc 6 vị trí xoay vòng)</label>
+      <input id="libero" maxlength="24" placeholder="Nhập tên libero nếu có" />
+    </div>
+    <div class="below">
+      <div class="mini"><strong>↻ Cách xoay</strong><p>Đội xoay theo chiều kim đồng hồ: 2 → 1, 1 → 6, 6 → 5, 5 → 4, 4 → 3, 3 → 2.</p></div>
+      <div class="mini"><strong>💾 Tự lưu</strong><p>Tên đội, cầu thủ và số lượt xoay được lưu trên trình duyệt của thiết bị này.</p></div>
+    </div>
+    <p class="hint">Bấm “Xoay cầu” khi đội giành quyền phát bóng sau khi nhận giao bóng của đối phương. Libero được nhập riêng và không xoay cùng sơ đồ 6 vị trí.</p>
+  </section>
+</main>
+<script>
+(() => {
+  const positions = [1,2,3,4,5,6];
+  const fields = Object.fromEntries(positions.map(n => [n, document.getElementById(`p${n}`)]));
+  const teamInput = document.getElementById('teamName');
+  const liberoInput = document.getElementById('libero');
+  const countEl = document.getElementById('rotationCount');
+  const statusEl = document.getElementById('status');
+  const undoBtn = document.getElementById('undoBtn');
+  const history = [];
+  let rotations = 0;
+
+  function readState() {
+    const players = {};
+    positions.forEach(n => players[n] = fields[n].value);
+    return { players, team: teamInput.value, libero: liberoInput.value, rotations };
+  }
+  function applyState(state) {
+    positions.forEach(n => fields[n].value = state.players[n] ?? '');
+    teamInput.value = state.team ?? '';
+    liberoInput.value = state.libero ?? '';
+    rotations = state.rotations ?? 0;
+    refresh();
+    save();
+  }
+  function refresh() {
+    countEl.textContent = rotations;
+    document.getElementById('courtTeamLabel').textContent = (teamInput.value.trim() || 'ĐỘI CỦA BẠN').toLocaleUpperCase('vi-VN');
+    undoBtn.disabled = history.length === 0;
+  }
+  function save() {
+    try { localStorage.setItem('volleyball-lineup-v1', JSON.stringify(readState())); } catch (_) {}
+  }
+  function announce(message) { statusEl.textContent = message; }
+
+  document.getElementById('rotateBtn').addEventListener('click', () => {
+    history.push(readState());
+    const old = {};
+    positions.forEach(n => old[n] = fields[n].value);
+    // Xoay thuận chiều kim đồng hồ: 2->1, 3->2, 4->3, 5->4, 6->5, 1->6.
+    const next = { 1:old[2], 2:old[3], 3:old[4], 4:old[5], 5:old[6], 6:old[1] };
+    positions.forEach(n => fields[n].value = next[n]);
+    rotations++;
+    refresh(); save();
+    announce(`Đã xoay cầu ${rotations} lượt theo chiều kim đồng hồ.`);
+  });
+  undoBtn.addEventListener('click', () => {
+    const previous = history.pop();
+    if (!previous) return;
+    applyState(previous);
+    announce('Đã hoàn tác lượt xoay gần nhất.');
+  });
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (!confirm('Xóa toàn bộ tên cầu thủ và đưa lượt xoay về 0?')) return;
+    history.length = 0;
+    positions.forEach(n => fields[n].value = '');
+    teamInput.value = '';
+    liberoInput.value = '';
+    rotations = 0;
+    refresh(); save();
+    announce('Đã xóa tên và đặt lại đội hình.');
+  });
+  [...Object.values(fields), teamInput, liberoInput].forEach(el => el.addEventListener('input', () => { refresh(); save(); }));
+
+  try {
+    const saved = JSON.parse(localStorage.getItem('volleyball-lineup-v1') || 'null');
+    if (saved && saved.players) applyState(saved);
+  } catch (_) {}
+  refresh();
+})();
+</script>
+</body>
+</html>
